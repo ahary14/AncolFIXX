@@ -134,9 +134,6 @@ int main()
 
   tampilHarga();
 
-  printf("\nMasukkan Nama Customer: ");
-  fgets(nama, sizeof(nama), stdin);
-
 menuUtama:
   printf("\n======== MENU UTAMA ========\n");
   printf("1. Pesan Tiket\n");
@@ -150,6 +147,14 @@ menuUtama:
 
   if (menu == 1)
   {
+    do
+    {
+      while (getchar() != '\n')
+        ;
+      printf("\nMasukkan Nama Customer: ");
+      fgets(nama, sizeof(nama), stdin);
+
+    } while (strlen(nama) <= 1);
     do
     {
       printf("\nPilih hari:\n");
