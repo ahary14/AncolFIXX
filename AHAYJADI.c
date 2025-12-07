@@ -5,10 +5,33 @@
 int hargaAncolWeekday = 30000;
 int hargaAncolWeekend = 35000;
 
-int hargaPaketKeluarga = 280000;
+int hargaPaketKeluarga = 120000;
 int hargaPaketPasangan = 55000;
 
-int hargaWahana[7] = {0, 0, 250000, 150000, 200000, 180000, 160000};
+int hargaWahana1 = 0;
+int hargaWahana2 = 250000;
+int hargaWahana3 = 150000;
+int hargaWahana4 = 200000;
+int hargaWahana5 = 160000;
+
+int getHargaWahana(int kode)
+{
+  switch (kode)
+  {
+  case 1:
+    return hargaWahana1;
+  case 2:
+    return hargaWahana2;
+  case 3:
+    return hargaWahana3;
+  case 4:
+    return hargaWahana4;
+  case 5:
+    return hargaWahana5;
+  default:
+    return 0;
+  }
+}
 
 const char *getNamaWahana(int kode)
 {
@@ -44,6 +67,58 @@ void tampilHarga()
   getchar();
 }
 
+void sortingWahana()
+{
+  int kode[5] = {1, 2, 3, 4, 5};
+  int harga[5];
+
+  for (int i = 0; i < 5; i++)
+  {
+    harga[i] = getHargaWahana(kode[i]);
+  }
+
+  for (int i = 0; i < 5; i++)
+  {
+    for (int j = 0; j < 4 - i; j++)
+    {
+      if (harga[j] > harga[j + 1])
+      {
+        int tmpHarga = harga[j];
+        harga[j] = harga[j + 1];
+        harga[j + 1] = tmpHarga;
+
+        int tmpKode = kode[j];
+        kode[j] = kode[j + 1];
+        kode[j + 1] = tmpKode;
+      }
+    }
+  }
+
+  printf("\n=== DAFTAR WAHANA (SORT BY HARGA TERMURAH) ===\n");
+  for (int i = 0; i < 5; i++)
+  {
+    printf("%s - Rp %d\n", getNamaWahana(kode[i]), harga[i]);
+  }
+  printf("\n");
+}
+
+void searchingWahana()
+{
+  int cari;
+  printf("\nMasukkan kode wahana yang ingin dicari (1-5): ");
+  scanf("%d", &cari);
+
+  if (cari < 1 || cari > 5)
+  {
+    printf("Kode tidak valid!\n");
+    return;
+  }
+
+  printf("\n=== HASIL PENCARIAN ===\n");
+  printf("Nama Wahana : %s\n", getNamaWahana(cari));
+  printf("Harga       : Rp %d\n\n", getHargaWahana(cari));
+}
+
 int main()
 {
   char nama[50];
@@ -59,20 +134,30 @@ int main()
 
   tampilHarga();
 
-  printf("\nMasukkan Nama Customer: ");
-  fgets(nama, sizeof(nama), stdin);
-
 menuUtama:
   printf("\n======== MENU UTAMA ========\n");
   printf("1. Pesan Tiket\n");
   printf("2. Lihat Pesanan\n");
   printf("3. Ubah Pesanan\n");
   printf("4. Hapus Pesanan\n");
-  printf("Pilih menu (1-4): ");
+  printf("5. Sorting Wahana\n");
+  printf("6. Searching Wahana\n");
+  printf("Pilih menu (1-6): ");
   scanf("%d", &menu);
 
   if (menu == 1)
   {
+
+    do
+    {
+      // Bersihkan buffer
+      while (getchar() != '\n')
+        ;
+      printf("Masukkan Nama Customer: ");
+      fgets(nama, sizeof(nama), stdin);
+
+    } while (strlen(nama) <= 1);
+
     do
     {
       printf("\nPilih hari:\n");
@@ -198,8 +283,8 @@ menuUtama:
     int hargaWahanaTotal = 0;
     for (int i = 0; i < jumlahWahana; i++)
     {
-      printf("%s (Rp %d)\n", getNamaWahana(daftarWahana[i]), hargaWahana[daftarWahana[i]]);
-      hargaWahanaTotal += hargaWahana[daftarWahana[i]];
+      printf("%s (Rp %d)\n", getNamaWahana(daftarWahana[i]), getHargaWahana(daftarWahana[i]));
+      hargaWahanaTotal += getHargaWahana(daftarWahana[i]);
     }
 
     if (tipe == 2)
@@ -384,6 +469,18 @@ menuUtama:
       printf("Terimakasih, silakan lakukan pemesanan kembali.\n");
     }
 
+    goto menuUtama;
+  }
+
+  else if (menu == 5)
+  {
+    sortingWahana();
+    goto menuUtama;
+  }
+
+  else if (menu == 6)
+  {
+    searchingWahana();
     goto menuUtama;
   }
 
