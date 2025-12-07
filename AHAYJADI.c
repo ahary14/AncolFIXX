@@ -134,6 +134,9 @@ int main()
 
   tampilHarga();
 
+  printf("\nMasukkan Nama Customer: ");
+  fgets(nama, sizeof(nama), stdin);
+
 menuUtama:
   printf("\n======== MENU UTAMA ========\n");
   printf("1. Pesan Tiket\n");
@@ -147,17 +150,6 @@ menuUtama:
 
   if (menu == 1)
   {
-
-    do
-    {
-      // Bersihkan buffer
-      while (getchar() != '\n')
-        ;
-      printf("Masukkan Nama Customer: ");
-      fgets(nama, sizeof(nama), stdin);
-
-    } while (strlen(nama) <= 1);
-
     do
     {
       printf("\nPilih hari:\n");
@@ -260,9 +252,15 @@ menuUtama:
       goto menuUtama;
     }
 
+    FILE *file = fopen("struk.txt", "w");
+
     printf("\n=========== STRUK PEMBELIAN ===========\n");
     printf("Nama Customer : %s", nama);
     printf("Hari          : %s\n", (hari == 1) ? "Weekday" : "Weekend");
+
+    fprintf(file, "=========== STRUK PEMBELIAN ===========\n");
+    fprintf(file, "Nama Customer : %s", nama);
+    fprintf(file, "Hari          : %s\n", (hari == 1) ? "Weekday" : "Weekend");
 
     printf("Tipe Tiket    : ");
     switch (tipe)
@@ -277,28 +275,41 @@ menuUtama:
       printf("Family\n");
       break;
     }
+
+    fprintf(file, "Tipe Tiket    : ");
+    switch (tipe)
+    {
+    case 1:
+      fprintf(file, "Personal\n");
+      break;
+    case 2:
+      fprintf(file, "Couple\n");
+      break;
+    case 3:
+      fprintf(file, "Family\n");
+      break;
+    }
+
     printf("Jumlah Tiket  : %d\n", jumlahTiket);
+    fprintf(file, "Jumlah Tiket  : %d\n", jumlahTiket);
 
     printf("Wahana        : ");
+    fprintf(file, "Wahana        : ");
+
     int hargaWahanaTotal = 0;
     for (int i = 0; i < jumlahWahana; i++)
     {
       printf("%s (Rp %d)\n", getNamaWahana(daftarWahana[i]), getHargaWahana(daftarWahana[i]));
+      fprintf(file, "%s (Rp %d)\n", getNamaWahana(daftarWahana[i]), getHargaWahana(daftarWahana[i]));
       hargaWahanaTotal += getHargaWahana(daftarWahana[i]);
     }
 
     if (tipe == 2)
-    {
-      hargaWahanaTotal *= 2; // Couple
-    }
+      hargaWahanaTotal *= 2;
     else if (tipe == 3)
-    {
-      hargaWahanaTotal *= 5; // Family
-    }
+      hargaWahanaTotal *= 5;
     else if (tipe == 1)
-    {
       hargaWahanaTotal *= jumlahTiket;
-    }
 
     int biayaKendaraan = 0;
     if (kendaraan == 1)
@@ -309,24 +320,47 @@ menuUtama:
       biayaKendaraan = 70000;
 
     printf("Kendaraan     : ");
+    fprintf(file, "Kendaraan     : ");
+
     switch (kendaraan)
     {
     case 1:
       printf("Motor (Rp 20000)\n");
+      fprintf(file, "Motor (Rp 20000)\n");
       break;
     case 2:
       printf("Mobil (Rp 35000)\n");
+      fprintf(file, "Mobil (Rp 35000)\n");
       break;
     case 3:
       printf("Tanpa Kendaraan (Rp 0)\n");
+      fprintf(file, "Tanpa Kendaraan (Rp 0)\n");
       break;
     case 4:
       printf("Bus (Rp 70000)\n");
+      fprintf(file, "Bus (Rp 70000)\n");
       break;
     }
 
     int hargaHari = (hari == 1) ? hargaAncolWeekday : hargaAncolWeekend;
-    int hargaTiket = hargaHari * jumlahTiket;
+    int hargaTiket;
+
+    if (tipe == 1)
+    {
+      // Personal
+      hargaTiket = hargaHari * jumlahTiket;
+    }
+    else if (tipe == 2)
+    {
+      // Couple
+      hargaTiket = hargaPaketPasangan;
+    }
+    else if (tipe == 3)
+    {
+      // Family
+      hargaTiket = hargaPaketKeluarga;
+    }
+
     int total = hargaTiket + hargaWahanaTotal + biayaKendaraan;
 
     printf("\n----------------------------------------\n");
@@ -335,7 +369,17 @@ menuUtama:
     printf("Biaya Parkir  : Rp %d\n", biayaKendaraan);
     printf("----------------------------------------\n");
     printf("TOTAL BAYAR   : Rp %d\n", total);
-    printf("\nTerima Kasih Telah Memesan Tiket, Selamat Bersnang-senang di Ancol!\n");
+
+    fprintf(file, "\n----------------------------------------\n");
+    fprintf(file, "Harga Tiket   : Rp %d\n", hargaTiket);
+    fprintf(file, "Harga Wahana  : Rp %d\n", hargaWahanaTotal);
+    fprintf(file, "Biaya Parkir  : Rp %d\n", biayaKendaraan);
+    fprintf(file, "----------------------------------------\n");
+    fprintf(file, "TOTAL BAYAR   : Rp %d\n", total);
+
+    fclose(file);
+
+    printf("\nTerimakasih Telah Memesan Tiket, Selamat Bersenang-Senang di Ancol!\n");
     printf("----------------------------------------\n");
 
     goto menuUtama;
